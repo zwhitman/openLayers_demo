@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html style="height:100%;width:100%" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OpenGeo Demo</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+
+    <!-- Leaflet -->
+    <link href="css/leaflet.css" rel="stylesheet">
+
+</head>
+<body style="height:100%;width:100%">
+<div id="map" style="height:100%;width:100%"></div>
+
+
+<script src="js/leaflet.js"></script>
+<script src="js/jquery.js"></script>
+<script>
+    var mbUrl = 'https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png';
+    var streetMapUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}';
+
+    var grayscale = L.tileLayer(mbUrl, {id: 'zwhitman.g9n8107b'});
+
+    var southWest = L.latLng(-80.712, -180),
+            northEast = L.latLng(90.774, 220),
+            bounds = L.latLngBounds(southWest, northEast);
+
+    var map = L.map('map', {
+        center: [39.73, 0],
+        zoom: 3,
+        minZoom: 3,
+        maxBounds: bounds,
+        layers: [grayscale]
+    });
+
+    var hurr_durr = new L.geoJson();
+    hurr_durr.addTo(map);
+
+    var fed_high = new L.geoJson();
+    fed_high.addTo(map);
+
+    $.ajax({
+        dataType: "json",
+        url: "http://www.deloitte-geospatial.com/geoserver/TfNSW/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=TfNSW:US_Hurr_Tracks&maxFeatures=50&outputFormat=application/json",
+        success: function(data) {
+            $(data.features).each(function(key, data) {
+                hurr_durr.addData(data);
+            });
+        }
+    }).error(function() {});
+
+    $.ajax({
+        dataType: "json",
+        url: "http://www.deloitte-geospatial.com/geoserver/climvar/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=climvar:opg_new&maxFeatures=50&outputFormat=application/json",
+        success: function(data) {
+            $(data.features).each(function(key, data) {
+                fed_high.addData(data);
+            });
+        }
+    }).error(function() {});
+
+
+</script>
+</body>
+</html>
